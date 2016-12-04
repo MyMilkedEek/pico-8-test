@@ -4,6 +4,8 @@ __lua__
 sprites = {}
 candy = {}
 cooldown = 1
+score = 0
+seconds = 300
 
 function _init()
  p = {}
@@ -15,51 +17,82 @@ function _init()
 end
 
 function input()
-	if (btn(0)) 
-  then sprites[1].x -= 1
- end
- if (btn(1))
-  then sprites[1].x += 1
- end
- if (btn(2))
-  then sprites[1].y -= 1
- end
- if (btn(3))
-  then sprites[1].y += 1
- end
- if (btn(4))
-  then newcandy()
+ if (seconds > 0)
+  then
+  	if (btn(0)) 
+    then sprites[1].x -= 1
+   end
+   if (btn(1))
+    then sprites[1].x += 1
+   end
+   if (btn(2))
+    then sprites[1].y -= 1
+   end
+   if (btn(3))
+    then sprites[1].y += 1
+   end
  end
 end
 
 function newcandy()
 if (cooldown == 1)
  then
-  c = {}
-  c.x = rnd(32)
-  c.y = rnd(32)
-  c.s = 0
-  add(candy, c)
-  cooldown = 10
+  if (#candy != 10 )
+   then
+		  c = {}
+    c.x = rnd(127)
+    c.y = rnd(80)+20
+    c.s = 0
+    add(candy, c)
+    cooldown = 50
+  end
  end
 end
 
 function _update()
-	input()
-	if (cooldown > 1)
- then
-	 cooldown -= 1
-	end
+  if (seconds > 0)
+   then
+   seconds -= 1
+	  input()
+	  newcandy()
+	  collision()
+	  if (cooldown > 1)
+    then
+	   cooldown -= 1
+  	end
+	 end
 end
 
 function drawsprite(s)
  spr(s.s, s.x, s.y)
 end
 
+function collision()
+ pl = sprites[1]
+ for i in all(candy) do
+  if (i.x < pl.x
+      and i.x + 4 > pl.x
+      and i.y > pl.y
+      and i.y - 8 < pl.y)
+   then
+   del(candy, i)
+   score += 20
+  end
+ end
+end
+
 function _draw()
 	cls()
+	print("time "..(flr(seconds/30)), 10, 5, 1)
+	print("score "..score, 65, 5, 1)
 	foreach(candy, drawsprite)
  foreach(sprites, drawsprite)
+ if (seconds == 0)
+  then
+  print("game over", 40, 60, 10)
+  print("final score is "..score,
+   25, 75, 10)
+ end
 end
 __gfx__
 00000000007007000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000
